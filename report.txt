@@ -4,11 +4,39 @@ Lab 3: Part I
 What package have you chosen?
 -----------------------------
 
+We have chosen the package `redish`. It is a simplified Haskell 
+implementation of the distributed key-value storage server Redis 
+(http://redis.io/).
+
 Why have you chosen this package?
 ---------------------------------
 
+First of all, we see a lot of potential for improvement in this package.
+There is a lot of functionality from Redis, which we believe that we can
+realistically port into the Haskell version. 
+
+Also, the Haskell package makes use of the STM monad, and having read
+through some of the material published by Simon Peyton Jones, we are excited
+to dig deeper into the capabilities of this programming style for
+concurrent applications.
+
 What do you intend to do for part II?
 -------------------------------------
+
+First of all, we intend to separate the logic of the application into
+purely functional code, where all logic is modeled as composable 
+computations in the STM-monad.
+
+After this is completed, we hope to write a property-based test suite for
+the module in QuickCheck. Since the only way of running computations in
+the STM-monad is through the run function `atomically`, which results in
+IO-computations, we hope to rely on the paper `Testing Monadic Code with 
+QuickCheck` to make this work.
+
+After the separation of logic from IO has been made, and an accompanying
+test suite has been implemented. We will choose one or two pieces of
+functionality from Redis, port these into Redish, and write property-based
+tests for this new functionality also.
 
 Which learning outcomes does it relate to?
 ------------------------------------------
