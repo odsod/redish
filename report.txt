@@ -48,6 +48,12 @@ test suite has been implemented. We will choose one or two pieces of
 functionality from Redis, port these into Redish, and write property-based
 tests for this new functionality also.
 
+Also, if the above suggestions are too limited with respect to the scope 
+of the course, we can also write an in depth usage tutorial for writing
+composable concurrent code in the STM monad. 
+
+Please give us your input on what to put focus on.
+
 Which learning outcomes does it relate to?
 ------------------------------------------
 
