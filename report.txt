@@ -8,8 +8,7 @@ We have chosen the package `redish`. It is a simplified Haskell
 implementation of the distributed key-value storage server Redis 
 (http://redis.io/).
 
-Source of redish:
-https://github.com/honza/redish
+Source of redish: http://github.com/honza/redish
 
 Why have you chosen this package?
 ---------------------------------
@@ -21,7 +20,9 @@ realistically port into the Haskell version.
 Also, the Haskell package makes use of the STM monad, and having read
 through some of the material published by Simon Peyton Jones, we are excited
 to dig deeper into the capabilities of this programming style for
-concurrent applications.
+concurrent applications. First and foremost, we hope to gain a better 
+understanding of the concepts described in the paper `Composable Memory
+Transactions` (http://research.microsoft.com/en-us/um/people/simonpj/papers/stm/stm.pdf).
 
 What do you intend to do for part II?
 -------------------------------------
@@ -33,8 +34,9 @@ computations in the STM-monad.
 After this is completed, we hope to write a property-based test suite for
 the module in QuickCheck. Since the only way of running computations in
 the STM-monad is through the run function `atomically`, which results in
-IO-computations, we hope to rely on the paper `Testing Monadic Code with 
-QuickCheck` to make this work.
+IO-computations, we hope to rely on the paper `Testing Monadic Code with QuickCheck` 
+(http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.118.9528&rep=rep1&type=pdf) 
+to make this work.
 
 After the separation of logic from IO has been made, and an accompanying
 test suite has been implemented. We will choose one or two pieces of
@@ -49,7 +51,3 @@ Which learning outcomes does it relate to?
 
 * "Spec.Test: formulate and test properties about the program"
     - QuickCheck testing
-
-* "Spec.Trans: transform programs on the basis of reasoning"
-    - (not sure) if by 'transform' one mean rewrite code e.g. in order 
-    to make it "better"/prettier/more modular...
