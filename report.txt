@@ -29,7 +29,12 @@ What do you intend to do for part II?
 
 First of all, we intend to separate the logic of the application into
 purely functional code, where all logic is modeled as composable 
-computations in the STM-monad.
+computations in the STM-monad. 
+
+Right now, the domain specific logic of the application (manipulation of
+underlying data structures), the concurrency handling code (monadic code in 
+the STM monad), and the actual IO-operations all muddled together. 
+We intend to introduce a clear separation of the three.
 
 After this is completed, we hope to write a property-based test suite for
 the module in QuickCheck. Since the only way of running computations in
