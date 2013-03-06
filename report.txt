@@ -35,7 +35,7 @@ After this is completed, we hope to write a property-based test suite for
 the module in QuickCheck. Since the only way of running computations in
 the STM-monad is through the run function `atomically`, which results in
 IO-computations, we hope to rely on the paper `Testing Monadic Code with QuickCheck` 
-(http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.118.9528&rep=rep1&type=pdf) 
+(http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.118.9528) 
 to make this work.
 
 After the separation of logic from IO has been made, and an accompanying
