@@ -8,6 +8,9 @@ We have chosen the package `redish`. It is a simplified Haskell
 implementation of the distributed key-value storage server Redis 
 (http://redis.io/).
 
+Source of redish:
+https://github.com/honza/redish
+
 Why have you chosen this package?
 ---------------------------------
 
@@ -40,3 +43,13 @@ tests for this new functionality also.
 
 Which learning outcomes does it relate to?
 ------------------------------------------
+
+* "Types.HOT: functors, monads and monad transformers"
+    - understanding STM; how it works and should be used.
+
+* "Spec.Test: formulate and test properties about the program"
+    - QuickCheck testing
+
+* "Spec.Trans: transform programs on the basis of reasoning"
+    - (not sure) if by 'transform' one mean rewrite code e.g. in order 
+    to make it "better"/prettier/more modular...
