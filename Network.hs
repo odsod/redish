@@ -1,10 +1,10 @@
-module RedishNetwork where
+module Network where
 
 import System.IO
 import Control.Concurrent (forkIO)
 import Control.Concurrent.STM
 
-import RedishCmd
+import Command
 
 defaultPort :: Int
 defaultPort = 7777

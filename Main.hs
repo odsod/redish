@@ -1,20 +1,10 @@
-import Control.Concurrent.STM
-import Control.Monad
+module Main where
+
 import Network (listenOn, withSocketsDo, accept, PortID(..), Socket)
 import System.Environment (getArgs)
 import System.IO (hSetBuffering, hGetLine, hPutStrLn, hPutStr, BufferMode(..), Handle)
-import Control.Concurrent (forkIO)
-import Data.Map (fromList, lookup, Map, insert)
-import Prelude hiding (lookup)
 
-type DB = Map String String
-
--------------------------------------------------------------------------------
--- Server stuff
--------------------------------------------------------------------------------
-
-version :: String
-version = "0.1.0"
+import Network
 
 main :: IO ()
 main = withSocketsDo $ do
@@ -75,19 +65,3 @@ commandProcessor handle db = do
 
         _  -> do hPutStrLn handle "Unknown command"
     commandProcessor handle db
-
--------------------------------------------------------------------------------
--- Data stuff
--------------------------------------------------------------------------------
-
-atomRead :: TVar a -> IO a
-atomRead = atomically . readTVar
-
-updateValue :: (DB -> DB) -> TVar DB -> IO ()
-updateValue fn x = atomically $ modifyTVar x fn
-
-getValue :: DB -> String -> IO (String)
-getValue db k = do
-    case lookup k db of
-      Just s -> return s
-      Nothing -> return "null"

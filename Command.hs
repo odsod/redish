@@ -1,7 +1,7 @@
-module RedishCmd where
+module Command where
 
 import Control.Concurrent.STM
-import RedishImpl
+import Redish
 
 handleCmd :: Command -> (TVar DB) -> STM ()
 handleCmd cmd db = do
