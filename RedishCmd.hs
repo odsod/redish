@@ -1,11 +1,7 @@
 module RedishCmd where
 
 import Control.Concurrent.STM
-
-data Command = 
-    Shutdown
-  | Get [String]
-  | Set [String]
+import RedishImpl
 
 handleCmd :: Command -> (TVar DB) -> STM ()
 handleCmd cmd db = do
