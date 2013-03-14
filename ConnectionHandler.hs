@@ -6,9 +6,6 @@ import Control.Concurrent.STM
 
 import Command
 
-defaultPort :: Int
-defaultPort = 7777
-
 handleConns :: Socket -> (TVar DB) -> IO ()
 handleConns s db = do
   (handle, host, port) <- accept s -- accept connection
@@ -22,4 +19,3 @@ handleConn h db = do
   res <- atomically $ handleCmd cmd db
   hPutStrLn h res
   handleConn h db -- How, what, why!?!
-
