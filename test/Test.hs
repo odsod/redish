@@ -27,7 +27,6 @@ instance (Ord k, Arbitrary k, Arbitrary v) => Arbitrary (DB k v) where
 
 {-| A State of a DB for testing statuful operations  |-}
 type DBTester a = State TestDB a
-
 type TestDB = DB String String
 type TestCommand = Command String String
 type TestReply = Reply (Container String)
