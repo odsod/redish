@@ -6,7 +6,10 @@ import System.IO
 
 import Redish
 
-processCommand :: Handle -> (TVar RedishDB) -> IO ()
+newDB :: IO (TVar RedishDB)
+newDB = newTVarIO emptyDB
+
+processCommand :: Handle -> TVar RedishDB -> IO ()
 processCommand handle tdb = do
     numArgs <- ((tail . head . words) <$> hGetLine handle)
     let numLines = ((read numArgs) :: Int) * 2

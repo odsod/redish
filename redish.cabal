@@ -12,7 +12,10 @@ cabal-version:       >=1.8
 
 library
     exposed-modules:
+        Server
         Redish
+    other-modules:
+        RedishCore
     build-depends:   base, containers 
 
 executable redish
@@ -23,6 +26,6 @@ executable redish
 
 Test-Suite test-redish
     type:           exitcode-stdio-1.0
-    build-depends:  base, redish, QuickCheck
+    build-depends:  base, redish, containers, mtl, QuickCheck
     hs-source-dirs: test
     main-is:        Test.hs

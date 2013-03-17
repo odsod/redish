@@ -9,7 +9,7 @@ import Control.Monad.Writer
 import Data.Monoid
 import qualified Data.Map as Map
 
-import Redish
+import RedishCore
 
 instance (Arbitrary a) => Arbitrary (Container a) where
   arbitrary = arbitraryContainer
@@ -25,7 +25,7 @@ instance (Ord k, Arbitrary k, Arbitrary v) => Arbitrary (DB k v) where
 prop_set_get :: String -> String -> DB String String -> Bool
 prop_set_get k v db = let (_, db') = runCommand db (Set k v) 
                           (r, _) = runCommand db' (Get k) 
-                          in r == (Val $ Raw v)
+                          in r == (BulkRep $ Raw v)
 
 prop_get_get :: String -> String -> DB String String -> Bool
 prop_get_get k v db = let (r1, db') = runCommand db (Get k)
@@ -36,7 +36,7 @@ prop_set_append :: String -> String -> String -> DB String String -> Bool
 prop_set_append k v a db = let (_, db') = runCommand db (Set k v)
                                (l, db'') = runCommand db' (Append k a)
                                (r, _) = runCommand db'' (Get k)
-                               in r == (Val $ Raw $ v ++ a) && l == (Len $ length (v ++ a))
+                               in r == (BulkRep $ Raw $ v ++ a) && l == (IntRep $ length (v ++ a))
 
 newtype Checker a = Checker { unChecker :: WriterT [Result] IO a }
   deriving ( Monad, MonadWriter [Result], MonadIO )

@@ -1,35 +1,58 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 import System.Exit
 import Test.QuickCheck
 import Test.QuickCheck.Test
 import Control.Monad
+import Control.Applicative
+import Control.Monad.Writer
+import Data.Monoid
+import qualified Data.Map as Map
 
-import Redish
+import RedishCore
 
-instance Arbitrary (Container String) where
+instance (Arbitrary a) => Arbitrary (Container a) where
   arbitrary = arbitraryContainer
 
-arbitraryContainer :: Gen (Container String)
-arbitraryContainer = elements [
-    Raw (arbitrary :: String)
-  , List (arbitrary :: [String])
-  ]
+arbitraryContainer :: (Arbitrary a) => Gen (Container a)
+arbitraryContainer = oneof [ 
+    liftM Raw arbitrary
+  , liftM List arbitrary ]
 
-{-instance Arbitrary DB where -}
-  {-arbitrary = sized arbitraryDB-}
+instance (Ord k, Arbitrary k, Arbitrary v) => Arbitrary (DB k v) where
+  arbitrary = liftM (DB . Map.fromList) arbitrary
 
-{-arbitraryDB :: Int -> Gen DB-}
-{-arbitraryDB 0 = emptyDB-}
-{-arbitraryDB n = emptyDB-}
+prop_set_get :: String -> String -> DB String String -> Bool
+prop_set_get k v db = let (_, db') = runCommand db (Set k v) 
+                          (r, _) = runCommand db' (Get k) 
+                          in r == (BulkRep $ Raw v)
 
-prop_lol :: Integer -> Bool
-prop_lol a = a == (a+2)
+prop_get_get :: String -> String -> DB String String -> Bool
+prop_get_get k v db = let (r1, db') = runCommand db (Get k)
+                          (r2, _) = runCommand db' (Get k)
+                          in r1 == r2
 
-prop_lul :: Integer -> Bool
-prop_lul a = a == a
+prop_set_append :: String -> String -> String -> DB String String -> Bool
+prop_set_append k v a db = let (_, db') = runCommand db (Set k v)
+                               (l, db'') = runCommand db' (Append k a)
+                               (r, _) = runCommand db'' (Get k)
+                               in r == (BulkRep $ Raw $ v ++ a) && l == (IntRep $ length (v ++ a))
 
-main = forM [
-    prop_lol
-  , prop_lul
-  ] quickCheckResult >>= \rs -> 
-    if (all isSuccess rs) then return () 
-                          else exitFailure
+newtype Checker a = Checker { unChecker :: WriterT [Result] IO a }
+  deriving ( Monad, MonadWriter [Result], MonadIO )
+
+runChecker :: Checker () -> IO ([Result])
+runChecker = liftM snd . runWriterT . unChecker
+
+check :: Testable prop => prop -> Checker ()
+check p = liftIO (quickCheckResult p) >>= tell . (:[])
+
+checks :: Checker ()
+checks = do
+  check prop_set_get
+  check prop_get_get
+  check prop_set_append
+
+main :: IO ()
+main = runChecker checks >>= \rs ->
+  if all isSuccess rs then return () else exitFailure

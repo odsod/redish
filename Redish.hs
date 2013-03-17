@@ -1,6 +1,7 @@
 module Redish (
     RedishDB
   , interpretCommand
+  , emptyDB
   ) where
 
 import RedishCore
