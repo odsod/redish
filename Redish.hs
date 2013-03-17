@@ -1,40 +1,59 @@
 module Redish where
 
 import Prelude hiding (lookup)
-import Data.Map
+import Data.Map hiding (size, foldr)
+import qualified Data.Map as Map
+import Data.Monoid
 
-type Key = String
-type Value = String
+class Sized a where
+  size :: a -> Int
 
-nil :: Value
-nil = "(nil)"
+instance Sized [a] where 
+  size = length
 
-ok :: Value
-ok = "OK"
+instance Sized (Map k v) where 
+  size = Map.size
 
-data Command =
+data Ret v = Val v
+           | Vals [v]
+           | Len Int
+           | OK
+           | Nil
+  deriving (Eq, Show)
+
+data Command k v =
+    -- Keys
+    Del [k]
     -- Strings
-    Get Key
-  | Set Key Value
-  | Append Key Value
+  | Get k
+  | Set k v
+  | Append k v
+  deriving (Eq, Show)
 
-runCommand :: DB -> Command -> (String, DB)
-runCommand db cmd = case cmd of
-  (Get k) -> 
-    case lookup k db of
-      Just v -> (show v, db)
-      Nothing -> (nil, db)
-  (Set k v) -> (ok, insert k (Raw v) db)
-  (Append k va) -> 
-    case lookup k db of
-      Just (Raw v) -> let v' = (v ++ va) in 
-                      (show $ length va, insert k (Raw v') db)
-      Just _ -> (show $ length va, insert k (Raw va) db)
-      Nothing -> undefined
-
-data Container a =
-    Raw a
-  | List [a]
-  deriving Show
+data Container v =
+    Raw v
+  | List [v]
+  deriving (Eq, Show)
   
-type DB = Map Key (Container Value)
+newtype DB k v = DB { unDB :: Map k (Container v) }
+  deriving (Eq, Show)
+
+emptyDB :: DB k v
+emptyDB = DB empty
+
+runCommand :: (Ord k, Monoid v, Sized v) => 
+  DB k v -> Command k v -> (Ret (Container v), DB k v)
+runCommand db@(DB mdb) cmd = case cmd of
+  (Get k) ->
+    case lookup k mdb of
+      Just v -> (Val v, db)
+      Nothing -> (Nil, db)
+  (Set k v) -> (OK, DB $ insert k (Raw v) mdb)
+  (Del ks) -> let mdb' = (foldr delete mdb ks) 
+              in (Len (size mdb - size mdb'), DB mdb')
+  (Append k va) -> 
+    case lookup k mdb of
+      Just (Raw v) -> let v' = (v `mappend` va) 
+                      in (Len $ size v', DB $ insert k (Raw v') mdb)
+      Just _ -> (Len $ size va, DB $ insert k (Raw va) mdb)
+      Nothing -> undefined
