@@ -15,12 +15,12 @@ instance Sized (Map k v) where
   size = Map.size
 
 data Reply v =
-             StatRep String
-           | ErrRep String
-           | IntRep Int
-           | BulkRep v
-           | NBulkRep
-           | MBulkRep [v]
+    StatRep String
+  | ErrRep String
+  | IntRep Int
+  | BulkRep v
+  | NBulkRep
+  | MBulkRep [v]
   deriving (Eq)
 
 data Command k v =
