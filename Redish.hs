@@ -1,3 +1,4 @@
+{-| An interface module for Redish.|-}
 module Redish (
     RedishDB
   , interpretCommand
@@ -6,7 +7,9 @@ module Redish (
 
 import RedishCore
 
+{-| A DB mapping String keys to String values |-}
 type RedishDB = DB String String
+
 type RedishCMD = Command String String
 
 keepOdd :: [a] -> [a]
@@ -19,6 +22,10 @@ parseCommand input = let (c:args) = words input in case c of
   "DEL" -> Del args
   "APPEND" -> Append (args !! 0) (args !! 1)
 
+{- Interprets a commmand. Given a RedishDB and a String representation
+   of a command interpretCommand executes the command on the given
+   RedishDB returning a String result and an updated RedishDB.
+-}
 interpretCommand :: RedishDB -> String -> (String, RedishDB)
 interpretCommand db input = 
   let (r, db') = runCommand db (parseCommand input)
