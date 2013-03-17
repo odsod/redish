@@ -5,7 +5,9 @@ import Data.Map hiding (size, foldr)
 import qualified Data.Map as Map
 import Data.Monoid
 
+{-| Typeclass for things that have a (discrete) size |-}
 class Sized a where
+  {-| Gives the size of the input |-}
   size :: a -> Int
 
 instance Sized [a] where 
@@ -14,6 +16,9 @@ instance Sized [a] where
 instance Sized (Map k v) where 
   size = Map.size
 
+{-| A data type representing the different kind of replies
+    in the Redis specification.
+|-}
 data Reply v =
     StatRep String
   | ErrRep String
@@ -23,6 +28,9 @@ data Reply v =
   | MBulkRep [v]
   deriving (Eq)
 
+{-| A data type representing the different commands
+    supported by Redish.
+|-}
 data Command k v =
     -- Keys
     Exists k
@@ -33,17 +41,27 @@ data Command k v =
   | Append k v
   deriving (Eq, Show)
 
+{-| A Container data type for storing different data structures of 
+    containing types v.
+|-}
 data Container v =
     Raw v
   | List [v]
   deriving (Eq, Show)
-  
+
+{-| A DB type mapping keys of type k to Containers of values of
+    type v
+|-}
 newtype DB k v = DB { unDB :: Map k (Container v) }
   deriving (Eq, Show)
 
+{-| Gives an empty DB |-}
 emptyDB :: DB k v
 emptyDB = DB empty
 
+{-| Runs a given command on a given DB retyrning a tuple
+    containing a Reply and the updated DB.
+|-}
 runCommand :: (Ord k, Monoid v, Sized v) => 
   DB k v -> Command k v -> (Reply (Container v), DB k v)
 runCommand db@(DB mdb) cmd = case cmd of
