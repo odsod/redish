@@ -12,13 +12,13 @@ import Network
 import ConnectionHandler
 import Redish
 
-defaultPort :: PortID
-defaultPort = PortNumber 6379
+defaultPort :: Integer
+defaultPort = 6379
 
-listenOnPort :: PortID -> IO ()
+listenOnPort :: Integer -> IO ()
 listenOnPort port = withSocketsDo $ do
     tdb <- newDB
-    sock <- listenOn port
+    sock <- listenOn $ PortNumber $ fromInteger port
     putStrLn $ "Listening on localhost:" ++ (show port)
     handleSocket sock tdb
 
