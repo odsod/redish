@@ -21,7 +21,7 @@ data Reply v =
            | BulkRep v
            | NBulkRep
            | MBulkRep [v]
-  deriving (Eq, Show)
+  deriving (Eq)
 
 data Command k v =
     -- Keys

@@ -22,4 +22,18 @@ parseCommand input = let (c:args) = words input in case c of
 interpretCommand :: RedishDB -> String -> (String, RedishDB)
 interpretCommand db input = 
   let (r, db') = runCommand db (parseCommand input)
-  in (show r, db')
+  in (showReply r, db')
+
+showReply :: Reply (Container String) -> String
+showReply r = case r of
+  StatRep s -> '+':s
+  ErrRep s -> '-':s
+  IntRep i -> ':':(show i)
+  BulkRep c -> showContainer c
+  MBulkRep cs -> unlines (map showContainer cs)
+  NBulkRep -> "(nil)"
+
+showContainer :: Container String -> String
+showContainer c = case c of
+  Raw s -> s
+  List s -> unwords s
