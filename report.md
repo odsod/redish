@@ -16,7 +16,9 @@ Description of library interface
 
 ### Before
 
-The library implements a subset of the `Redis` specification, as described
+The library, `Redish` (available at 
+[https://github.com/honza/redish](https://github.com/honza/redish)), 
+implements a subset of the `Redis` specification, as described
 on [http://redis.io](http://redis.io).
 
 `Redis` is a key-value server, which can be used for caching to improve
@@ -30,7 +32,7 @@ command sent to it.
 The commands it supports are:
 
     GET key
-    SET key name
+    SET key value
 
 A typical session with the server could be:
 
