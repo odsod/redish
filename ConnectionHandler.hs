@@ -1,21 +1,23 @@
-module Network where
+module ConnectionHandler where
 
-import System.IO
-import Control.Concurrent (forkIO)
 import Control.Concurrent.STM
+import Control.Applicative
+import System.IO
 
-import Command
+import Redish
 
-handleConns :: Socket -> (TVar DB) -> IO ()
-handleConns s db = do
-  (handle, host, port) <- accept s -- accept connection
-  hSetBuffering handle NoBuffering -- Buffering ??
-  forkIO $ handleConn handle db
-  handleConns s db
+processCommand :: Handle -> (TVar RedishDB) -> IO ()
+processCommand handle tdb = do
+    numArgs <- ((tail . head . words) <$> hGetLine handle)
+    let numLines = ((read numArgs) :: Int) * 2
+    input <- sequence (replicate numLines (hGetLine handle))
+    reply <- atomically $ handleCommand input tdb
+    hPutStr handle reply
+    processCommand handle tdb
 
-handleConn :: Handle -> (TVar DB) -> IO ()
-handleConn h db = do
-  cmd <- hGetLine handle
-  res <- atomically $ handleCmd cmd db
-  hPutStrLn h res
-  handleConn h db -- How, what, why!?!
+handleCommand :: [String] -> TVar RedishDB -> STM String
+handleCommand input tdb = do
+  db <- readTVar tdb
+  let (rep, db') = interpretCommand db input
+  writeTVar tdb db'
+  return (show rep)

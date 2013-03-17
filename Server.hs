@@ -1,8 +1,10 @@
 module Main where
 
-import Network (listenOn, withSocketsDo, accept, PortID(..), Socket)
-import System.Environment (getArgs)
-import System.IO (hSetBuffering, hGetLine, hPutStrLn, hPutStr, BufferMode(..), Handle)
+import System.Environment
+import System.IO
+import Control.Concurrent.STM
+
+import ConnectionHandler
 
 defaultPort :: PortNumber
 defaultPort = PortNumber (fromIntegral 7777)

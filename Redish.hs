@@ -1,61 +1,24 @@
-module Redish where
+module Redish (
+    RedishDB
+  , interpretCommand
+  ) where
 
-import Prelude hiding (lookup)
-import Data.Map hiding (size, foldr)
-import qualified Data.Map as Map
-import Data.Monoid
+import RedishCore
 
-class Sized a where
-  size :: a -> Int
+type RedishDB = DB String String
+type RedishCMD = Command String String
 
-instance Sized [a] where 
-  size = length
+keepOdd :: [a] -> [a]
+keepOdd = snd . unzip . filter (odd . fst) . (zip [0..])
 
-instance Sized (Map k v) where 
-  size = Map.size
+parseCommand :: [String] -> RedishCMD
+parseCommand input = let (c:args) = keepOdd input in case c of
+  "GET" -> Get (args !! 0)
+  "SET" -> Set (args !! 0) (args !! 1)
+  "DEL" -> Del args
+  "APPEND" -> Append (args !! 0) (args !! 1)
 
-data Reply v =
-             StatRep String
-           | ErrRep String
-           | IntRep Int
-           | BulkRep v
-           | NBulkRep
-           | MBulkRep [v]
-  deriving (Eq, Show)
-
-data Command k v =
-    -- Keys
-    Del [k]
-    -- Strings
-  | Get k
-  | Set k v
-  | Append k v
-  deriving (Eq, Show)
-
-data Container v =
-    Raw v
-  | List [v]
-  deriving (Eq, Show)
-  
-newtype DB k v = DB { unDB :: Map k (Container v) }
-  deriving (Eq, Show)
-
-emptyDB :: DB k v
-emptyDB = DB empty
-
-runCommand :: (Ord k, Monoid v, Sized v) => 
-  DB k v -> Command k v -> (Reply (Container v), DB k v)
-runCommand db@(DB mdb) cmd = case cmd of
-  (Get k) ->
-    case lookup k mdb of
-      Just v -> (BulkRep v, db)
-      Nothing -> (NBulkRep, db)
-  (Set k v) -> (StatRep "OK", DB $ insert k (Raw v) mdb)
-  (Del ks) -> let mdb' = (foldr delete mdb ks) 
-              in (IntRep (size mdb - size mdb'), DB mdb')
-  (Append k va) -> 
-    case lookup k mdb of
-      Just (Raw v) -> let v' = (v `mappend` va) 
-                      in (IntRep $ size v', DB $ insert k (Raw v') mdb)
-      Just _ -> (IntRep $ size va, DB $ insert k (Raw va) mdb)
-      Nothing -> undefined
+interpretCommand :: RedishDB -> [String] -> (String, RedishDB)
+interpretCommand db input = 
+  let (r, db') = runCommand db (parseCommand input)
+  in (show r, db')
