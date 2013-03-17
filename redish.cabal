@@ -14,9 +14,10 @@ library
     exposed-modules:
         Server
         Redish
-    other-modules:
         RedishCore
-    build-depends:   base, containers 
+    other-modules:
+        ConnectionHandler
+    build-depends:   base, containers, network, stm
 
 executable redish
   hs-source-dirs:    executable
