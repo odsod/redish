@@ -19,12 +19,9 @@ arbitraryContainer = oneof [
     liftM Raw arbitrary
   , liftM List arbitrary ]
 
-troll = sample (arbitraryContainer :: Gen(Container String))
-
 instance (Ord k, Arbitrary k, Arbitrary v) => Arbitrary (DB k v) where
   arbitrary = liftM (DB . Map.fromList) arbitrary
 
-{-prop_set_get :: (Monoid v, Sized v, Eq v) => k -> v -> DB k v -> Bool-}
 prop_set_get :: String -> String -> DB String String -> Bool
 prop_set_get k v db = let (_, db') = runCommand db (Set k v) 
                           (r, _) = runCommand db' (Get k) 
@@ -50,6 +47,7 @@ runChecker = liftM snd . runWriterT . unChecker
 check :: Testable prop => prop -> Checker ()
 check p = liftIO (quickCheckResult p) >>= tell . (:[])
 
+checks :: Checker ()
 checks = do
   check prop_set_get
   check prop_get_get

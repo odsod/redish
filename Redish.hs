@@ -14,11 +14,13 @@ instance Sized [a] where
 instance Sized (Map k v) where 
   size = Map.size
 
-data Ret v = Val v
-           | Vals [v]
-           | Len Int
-           | OK
-           | Nil
+data Reply v =
+             StatRep String
+           | ErrRep String
+           | IntRep Int
+           | BulkRep v
+           | NBulkRep
+           | MBulkRep [v]
   deriving (Eq, Show)
 
 data Command k v =
@@ -42,18 +44,18 @@ emptyDB :: DB k v
 emptyDB = DB empty
 
 runCommand :: (Ord k, Monoid v, Sized v) => 
-  DB k v -> Command k v -> (Ret (Container v), DB k v)
+  DB k v -> Command k v -> (Reply (Container v), DB k v)
 runCommand db@(DB mdb) cmd = case cmd of
   (Get k) ->
     case lookup k mdb of
-      Just v -> (Val v, db)
-      Nothing -> (Nil, db)
-  (Set k v) -> (OK, DB $ insert k (Raw v) mdb)
+      Just v -> (BulkRep v, db)
+      Nothing -> (NBulkRep, db)
+  (Set k v) -> (StatRep "OK", DB $ insert k (Raw v) mdb)
   (Del ks) -> let mdb' = (foldr delete mdb ks) 
-              in (Len (size mdb - size mdb'), DB mdb')
+              in (IntRep (size mdb - size mdb'), DB mdb')
   (Append k va) -> 
     case lookup k mdb of
       Just (Raw v) -> let v' = (v `mappend` va) 
-                      in (Len $ size v', DB $ insert k (Raw v') mdb)
-      Just _ -> (Len $ size va, DB $ insert k (Raw va) mdb)
+                      in (IntRep $ size v', DB $ insert k (Raw v') mdb)
+      Just _ -> (IntRep $ size va, DB $ insert k (Raw va) mdb)
       Nothing -> undefined
